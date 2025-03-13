@@ -1,110 +1,125 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Parte 1 - Jogo da Velha
-
-# ### Passo 1: Criar uma função que escreve na tela o tabuleiro
-
-# In[ ]:
-
+import random
 
 def mostra_tabuleiro(tabuleiro):
-    
-    print("-------------") # Marca uma divisão entre telas para controle visual
-    
+    print("-------------")
     for linha in tabuleiro:
-        
         print("|", linha[0], "|", linha[1], "|", linha[2], "|")
-        
-        print("-------------") # Marca uma divisão entre telas para controle visual
-
-
-# ### Passo 2: Criar as regras para que o jogo seja finalizado
-
-# In[ ]:
-
+        print("-------------")
 
 def verifica_vitoria(tabuleiro, jogador):
-    
-    # Vamos verificar possibilidade de vitória por sequência horizontal
-    for i in range(0,3):
-        
+    for i in range(3):
         if tabuleiro[i][0] == jogador and tabuleiro[i][1] == jogador and tabuleiro[i][2] == jogador:
-            
             return True
-        
-    # Vamos verificar possibilidade de vitória por sequência vertical
-    for i in range(0,3):
-        
         if tabuleiro[0][i] == jogador and tabuleiro[1][i] == jogador and tabuleiro[2][i] == jogador:
-            
             return True
-        
-    # Vamos verificar possibilidade de vitória na diagonal
     if tabuleiro[0][0] == jogador and tabuleiro[1][1] == jogador and tabuleiro[2][2] == jogador:
-        
         return True
-    
     if tabuleiro[0][2] == jogador and tabuleiro[1][1] == jogador and tabuleiro[2][0] == jogador:
-        
         return True
-    
     return False
 
-
-# ### Passo 3: Criar a função que inicializa o jogo
-
-# In[ ]:
-
+def jogada_maquina(tabuleiro, jogador, oponente):
+    for i in range(3):
+        for j in range(3):
+            if tabuleiro[i][j] == " ":
+                tabuleiro[i][j] = jogador
+                if verifica_vitoria(tabuleiro, jogador):
+                    return
+                tabuleiro[i][j] = " "
+    for i in range(3):
+        for j in range(3):
+            if tabuleiro[i][j] == " ":
+                tabuleiro[i][j] = oponente
+                if verifica_vitoria(tabuleiro, oponente):
+                    tabuleiro[i][j] = jogador
+                    return
+                tabuleiro[i][j] = " "
+    while True:
+        i, j = random.randint(0, 2), random.randint(0, 2)
+        if tabuleiro[i][j] == " ":
+            tabuleiro[i][j] = jogador
+            return
 
 def start_jogo():
     
-    # Criação da lista que gera o tabuleiro
+    # Criação do tabuleiro
     tabuleiro = [
         [" "," "," "],
         [" "," "," "],
         [" "," "," "]
     ]
     
-    # Jogadores existentes
-    jogadores = ["X","O"]
+    # Definição dos jogadores
+    jogadores = ["X", "O"]
     
-    # Define o marcador que inicia o jogo
-    jogador_atual = jogadores[0]
+    # Pergunta quantos jogadores irão jogar
+    player_amount = int(input(f"Terá 1 ou 2 jogadores? "))
     
-    # Printa o tabuleiro na tela
+    if player_amount >= 2:
+        jogador_atual = jogadores[0]  # Começa com X
+        jogador_maquina = None
+    elif player_amount == 1:
+        jogador_atual = input(f"Escolha se quer ser [X] ou [O]: ").upper()
+        if jogador_atual not in jogadores:
+            print("Escolha inválida. Jogador será X por padrão.")
+            jogador_atual = jogadores[0]
+        jogador_maquina = jogadores[1] if jogador_atual == jogadores[0] else jogadores[0]
+
+    # Mostra o tabuleiro inicial
     mostra_tabuleiro(tabuleiro)
-    
-    # Definindo o posicionamento dos marcadores
-    for i in range(1,10):
-        
-        linha = int(input(f"Jogador {jogador_atual} escolha uma linha 1 - 3: ")) - 1
-        coluna = int(input(f"Jogador {jogador_atual} escolha uma coluna 1 - 3: ")) - 1
-        
-        # Verificando se a posicao escolhida e valida
-        if tabuleiro[linha][coluna] != " ":
-            
-            print("Posição ocupada.\nEscolha outra opção.")
-            linha = int(input(f"Jogador {jogador_atual} escolha uma linha 1 - 3: ")) - 1
-            coluna = int(input(f"Jogador {jogador_atual} escolha uma coluna 1 - 3: ")) - 1
-               
-        tabuleiro[linha][coluna] = jogador_atual
-        mostra_tabuleiro(tabuleiro)
-        
-        if verifica_vitoria(tabuleiro, jogador_atual):
-            
-            print(f"Jogador {jogador_atual} venceu!!!")
-            return
-        
-        # Precisamos alterar entre os jogadores
-        jogador_atual = jogadores[i % 2]
-        
-    # Caso nenhuma das condições de vitória sejam encontradas, devemos considerar o resultado de empate
+
+    # Jogo para 1 jogador (Player vs Máquina)
+    if player_amount == 1:
+        while True:
+            # Jogada do jogador humano
+            if jogador_atual != jogador_maquina:
+                linha = int(input(f"Jogador {jogador_atual}, escolha uma linha (1-3): ")) - 1
+                coluna = int(input(f"Jogador {jogador_atual}, escolha uma coluna (1-3): ")) - 1
+                
+                # Verifica se a posição está ocupada
+                while tabuleiro[linha][coluna] != " ":
+                    print("Posição ocupada. Escolha outra opção.")
+                    linha = int(input(f"Jogador {jogador_atual}, escolha uma linha (1-3): ")) - 1
+                    coluna = int(input(f"Jogador {jogador_atual}, escolha uma coluna (1-3): ")) - 1
+                
+                tabuleiro[linha][coluna] = jogador_atual
+                mostra_tabuleiro(tabuleiro)
+
+                # Verifica se o jogador humano venceu
+                if verifica_vitoria(tabuleiro, jogador_atual):
+                    print(f"Jogador {jogador_atual} venceu!")
+                    return
+                
+                # Verifica se o tabuleiro está cheio (empate)
+                if all(cell != " " for row in tabuleiro for cell in row):
+                    print("O jogo terminou empatado.")
+                    return
+
+                # Passa a vez para a máquina
+                jogador_atual = jogador_maquina
+
+            # Jogada da máquina
+            elif jogador_atual == jogador_maquina:
+                oponente = jogadores[0] if jogador_maquina == jogadores[1] else jogadores[1]
+                jogada_maquina(tabuleiro, jogador_maquina, oponente)  # Correção aqui!
+                mostra_tabuleiro(tabuleiro)
+
+                # Verifica se a máquina venceu
+                if verifica_vitoria(tabuleiro, jogador_maquina):
+                    print(f"A máquina ({jogador_maquina}) venceu!")
+                    return
+                
+                # Verifica se o tabuleiro está cheio (empate)
+                if all(cell != " " for row in tabuleiro for cell in row):
+                    print("O jogo terminou empatado.")
+                    return
+
+                # Passa a vez de volta para o jogador
+                jogador_atual = oponente
+
     print("O jogo terminou empatado.")
 
-
-# In[ ]:
-
-
 start_jogo()
-
