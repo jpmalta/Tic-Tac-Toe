@@ -120,6 +120,35 @@ def start_jogo():
                 # Passa a vez de volta para o jogador
                 jogador_atual = oponente
 
+    # Jogo para 2 jogadores (Player vs Player)
+    if player_amount == 2:
+        while True:
+            # Jogada do jogador atual
+            linha = int(input(f"Jogador {jogador_atual}, escolha uma linha (1-3): ")) - 1
+            coluna = int(input(f"Jogador {jogador_atual}, escolha uma coluna (1-3): ")) - 1
+            
+            # Verifica se a posição está ocupada
+            while tabuleiro[linha][coluna] != " ":
+                print("Posição ocupada. Escolha outra opção.")
+                linha = int(input(f"Jogador {jogador_atual}, escolha uma linha (1-3): ")) - 1
+                coluna = int(input(f"Jogador {jogador_atual}, escolha uma coluna (1-3): ")) - 1
+            
+            tabuleiro[linha][coluna] = jogador_atual
+            mostra_tabuleiro(tabuleiro)
+
+            # Verifica se o jogador atual venceu
+            if verifica_vitoria(tabuleiro, jogador_atual):
+                print(f"Jogador {jogador_atual} venceu!")
+                return
+            
+            # Verifica se o tabuleiro está cheio (empate)
+            if all(cell != " " for row in tabuleiro for cell in row):
+                print("O jogo terminou empatado.")
+                return
+
+            # Alterna para o próximo jogador
+            jogador_atual = jogadores[0] if jogador_atual == jogadores[1] else jogadores[1]
+
     print("O jogo terminou empatado.")
 
 start_jogo()
